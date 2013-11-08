@@ -6,6 +6,21 @@
 
 use strict;
 
+
+my %h = ("-12" => "p",  # pico
+         "-9"  => "n",  # nano
+         "-6"  => "u",  # micro
+         "-3"  => "m",  # milli
+         "0"   => "",   # 
+         "3"   => "k",  # kilo
+         "6"   => "M"   # mega
+        );
+
+
+# Function expansion
+# Takes a number + optional 10^3 multiplier (Mkmunp)
+# Issues a float
+
 sub expansion($) {
 
   my $value = shift;
@@ -29,6 +44,43 @@ sub expansion($) {
 }
 
 
+# Function fmt
+# Takes a float on input
+# Issues a rounded number (2 significant digits) + multiplier (Mkmunp)
+
+sub fmt ($) {
+
+  my $value = shift;
+
+  my ($sci, $rnd, $norm, $i, $j);
+
+  # First, determine the magnitude of the number
+
+  for ($i = 6; $i > -13; $i--) { 
+    if (int ($value / (10**$i)) > 0) {
+      $sci = sprintf ("%.1f*10**$i", $value / (10**$i)); 
+      last;
+    }
+  } 
+  $rnd = eval $sci; 
+
+  # Then, round the number accordingly, and prepare for 10^3 multipliers
+
+  for ($j = 6; $j > -13; $j -= 3) { 
+    if (int ($rnd / (10**$j)) > 0) {
+      if ($i % 3 == 0) {
+        $norm = sprintf ("%.1f%s", $rnd/(10**$j), $h{$j});
+      }
+      else {
+        $norm = sprintf ("%.0f%s", $rnd/(10**$j), $h{$j}); 
+      }
+    return $norm;
+    }
+  }
+}
+
+
+
 # Main code : F=1/(2PiRC), R=1/(2PiFC), C=1/(2PiRF)
 
 if ((defined $ARGV [0]) and
@@ -36,7 +88,10 @@ if ((defined $ARGV [0]) and
     ($ARGV [0] =~ /^(\d+\.?\d*|\.\d+)[Mkmunp]?$/) and
     ($ARGV [1] =~ /^(\d+\.?\d*|\.\d+)[Mkmunp]?$/)) {
 
-  print 1 / (6.283 * expansion ($ARGV [0]) * expansion ($ARGV [1])) . "\n";
+  my $result = 1 / (6.283 * expansion ($ARGV [0]) * expansion ($ARGV [1]));
+
+  print $result . " (" .  fmt ($result) . ")\n";
+
   exit 0;
 }
 
