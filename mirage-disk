@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# mirage-disk - jzu@free.fr 2001-2013 - WTFPL
+# Dumps sound data from a Mirage-formatted diskette
+# Creates a directory located in $HOME/mirage and, first, splits the 
+# contents of the diskette in small files, two per track (the second 
+# containing the last sector of the track, basically meta-data)
+# The first file is named dXX.dmp (data from track XX)
+# The second one is named sXX.dmp (small sector from track XX)
+# These track files are then concatenated in sample files.
+
+# Ensoniq Mirage diskettes are formatted this (quite weird) way:
+# single-sided
+# 80 tracks 
+# which contain five type 3 sectors (1024 b) + one type 2 sector (512 b)
+
+# Now on the filesystem structure:
+# The OS is found on sectors from t0s0 to t1s5, then on small sectors (s5)
+# from t2 to t10
+# Configuration parameters are on t11s5
+# Further small sectors (t[12-79]s5) contain directory info and sequences
+# I'm not interested in sequences, so I'll only take care of the samples
+
+# A "Sound" is in fact two samples reflecting the split keyboard
+# Each sample (64 sectors) is statically allocated along these lines:
+
+# Sound   Parms Low   Lower Half     Parms Up   Upper Half
+#   1       t2s0      t2s1-t14s4      t15s0     t15s1-t15s4
+#   2       t28s0     t28s1-t40s4     t41s0     t41s1-t41s4
+#   3       t54s0     t54s1-t66s4     t67s0     t67s1-t79s4
+
+# The parameters sector is quite mysterious right now, but I'll check
+# the Mirage's documentation to see if I can get a clue
+
+# There is a sound "directory" sector, t32s5, where a single byte is 
+# replicated 512 times because of the lack of a dedicated buffer :-)
+
+# Bit 1 indicates Sound 1 Lower is present
+#     2                 1 Upper
+#     3                 2 L
+#     4                 2 U
+#     5                 3 L
+#     6                 3 U
+
+# Hence we have to check whether the sample is present before
+# aggregating the sectors by testing the possible values of this byte
+# We then separate the parameters sector from the first data chunk
+# and concatenate the rest
+
+# Up to SIX DATA FILES are created, which are named [123][LU].raw
+# Work is under way to convert these using sox into something audible 
+
+# Depends on fdutils (http://fdutils.linux.lu/)
+
+# You have to be in the "floppy" group in order to run this program
+# By default, only root can do this, so update your /etc/group :-)
+
+# Thanks to Alain Knaff for his page http://fdutils.linux.lu/disk-id.html
+# which takes a step by step approach to extract data from alien disks
+# Thanks to Gary Giebler for
+# http://www.youngmonkey.ca/nose/audio_tech/synth/Ensoniq-Mirage_DiskFormat.txt
+# which described the gory details of the Mirage filesystem
+# (This page is now missing - use the Wayback Machine)
+
+# This program is free software. It used to be under the GPL
+# but the WTFPL now seems a better match for its obsoleteness
+# Also, the version was 0.3 - the code hasn't changed since
+
+# Aggregates sector files in a sample file
+
+concat() {
+  debut=$1
+  fin=$2
+  fichier=$REPERTOIRE/$3
+  bit=$4
+  if [ $(($FLAGS & $bit)) -ne $((0)) ]
+  then
+    echo $fichier ok
+    for j in `seq $debut $fin`
+    do
+      if [ -s $REPERTOIRE/d$j.dmp ]
+      then
+        cat $REPERTOIRE/d$j.dmp >> $fichier
+      else
+        # Should we append a blank sector?
+        echo Warning: $REPERTOIRE/d$j.dmp is empty, no sector appended
+      fi
+    done
+  fi
+}
+
+
+### MAIN ###
+
+if [ $# -ne 1 ]
+then
+  echo Usage: $0 directory
+  exit 1
+fi
+
+REPERTOIRE=~/mirage/$1
+
+if [ -d $REPERTOIRE ]
+then
+  echo Error: directory $REPERTOIRE exists
+  exit 2
+fi
+
+mkdir -p $REPERTOIRE
+
+for i in `seq 0 79`
+do
+  fdrawcmd read 0 $i 0 0 3 6 0x1b 0xff \
+           length=5120 rate=2 need_seek track=$i \
+           > $REPERTOIRE/d$i.dmp 2> /tmp/mirage-data.err
+  fdrawcmd read 0 $(($i)) 0 5 2 6 0x1b 0xff \
+           length=512 rate=2 need_seek track=$i \
+           > $REPERTOIRE/s$i.dmp 2> /tmp/mirage-small.err
+  cat /tmp/mirage-data.err | xargs echo
+  cat /tmp/mirage-small.err| xargs echo
+done 
+
+for i in 2 15 28 41 54 67
+do
+  dd if=$REPERTOIRE/d$i.dmp of=$REPERTOIRE/p$i.dmp bs=1024 count=1 > /dev/null
+  dd if=$REPERTOIRE/d$i.dmp of=/tmp/mirage$$ bs=1024 count=4 skip=1 > /dev/null
+  mv /tmp/mirage$$ $REPERTOIRE/d$i.dmp
+done
+
+FLAGS=0x`cut -b 1 $REPERTOIRE/s32.dmp \
+         | od -x \
+         | head -1 \
+         | cut -b 11-12`
+
+# Insert FLAGS=0x7e here if you want to extract all samples unconditionally
+
+concat  2 14 1L.raw 0x2
+concat 15 27 1U.raw 0x4
+concat 28 40 2L.raw 0x8
+concat 41 53 2U.raw 0x10
+concat 54 66 3L.raw 0x20
+concat 67 79 3U.raw 0x40
+
+rm -f $REPERTOIRE/d*.dmp $REPERTOIRE/s*.dmp
+
+exit 0

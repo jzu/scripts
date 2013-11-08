@@ -28,6 +28,14 @@ as the files in the directory, looking like this:
      file2.wav Second Title
      (...)
 
+mirage-disk
+-----------
+Dumps sound data from a Mirage-formatted diskette.
+The [Ensoniq Mirage](http://www.vintagesynth.com/ensoniq/ens_mirage.php) was the very 
+first popular sampler, and used 8-bit samples on 3.5" diskettes, 
+which were formatted in an "interesting" way. 
+Normal humans won't need this script.
+
 nxv
 ---
 
@@ -63,5 +71,7 @@ testmd
 
 Generates HTML from a [Markdown](http://daringfireball.net/projects/markdown/) file, 
 in `/tmp/testmd.html`. I use it mostly for READMEs like this one.
+
+
 
 
