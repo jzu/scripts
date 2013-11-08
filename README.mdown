@@ -2,7 +2,7 @@ SCRIPTS
 =======
 
 Some of the scripts I use on a daily - or not - basis, and that I thought
-worth sharing - who knows. Complexity varies from trivial to ridiculous.
+worth sharing - who knows. Complexity varies from trivial to, well, complex.
 
 All scripts are published under the [WTFPL](http://www.wtfpl.net/).
 
@@ -17,7 +17,7 @@ CDDB-aware software like `ripit`. You will need `flac`, `lame`, `eyeD3`.
 masteringsheet
 --------------
 
-Incredibly ugly bash script generating a mastering sheet, needed by audio mastering studios.
+Ugly bash script generating a mastering sheet, needed by audio mastering studios.
 Good luck customizing this one... although the IRSC could prove useful.
 
 Files should be alphabetically ordered in the directory.
