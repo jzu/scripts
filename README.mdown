@@ -1,0 +1,67 @@
+SCRIPTS
+=======
+
+Some of the scripts I use on a daily - or not - basis, and that I thought
+worth sharing - who knows. Complexity varies from trivial to ridiculous.
+
+All scripts are published under the [WTFPL](http://www.wtfpl.net/).
+
+flac2mp3
+--------
+
+Converts FLAC audio files to MP3 (high quality) while preserving metadata
+in ID3 fields. You get the best of both worlds: unadultered quality of FLACs plus 
+portability of MP3s. The FLAC files may be generated using any ripping/encoding
+CDDB-aware software like `ripit`. You will need `flac`, `lame`, `eyeD3`.
+
+masteringsheet
+--------------
+
+Incredibly ugly bash script generating a mastering sheet, needed by audio mastering studios.
+Good luck customizing this one... although the IRSC could prove useful.
+
+Files should be alphabetically ordered in the directory.
+You will have to create a sequential file where filenames match the titles, in the same order
+as the files in the directory, looking like this:
+
+     file1.wav First Title
+     file2.wav Second Title
+     (...)
+
+nxv
+---
+
+Networked `xv`, that is, accepting URLs as arguments.
+I'm addicted to `xv`, an image visualizer which you could find in the first Slackwares, but
+as a shareware, it has been excluded from all GNU/Linux distros for a long time now. 
+Furthermore, the project is abandoned by its author.
+You can still grab [a copy of the sources](http://www.trilon.com/xv/downloads.html), 
+and compile them - or use `qiv` for which you can easily adapt this script, or `display`
+which accepts URLs by default, or any modern software you like.
+
+paragrep
+--------
+
+`grep` for paragraphs: first, formats each paragraph (separated by two line feeds) as a single line, 
+then greps a pattern in it. Does its best to preserve patterns and options passed to the real `grep`.
+By the way, `--color=always` is really useful to spot the pattern in huge chunks of text.
+Accepts input from stdin. Without any pattern, will simply format the paragraphs as lines.
+
+rcf
+---
+
+Perl program which computes the third value of an electronic first-order RC filter, given 
+two of them, with an absurd precision. 
+Example with an 1 kiloohm resistor and an 1 microfarad capacitor:
+
+     RCF.pl 1k 1u
+
+returns 159.159637116027 (Hz).
+
+testmd
+------
+
+Generates HTML from a [Markdown](http://daringfireball.net/projects/markdown/) file, 
+in `/tmp/testmd.html`. I use it mostly for READMEs like this one.
+
+
