@@ -59,12 +59,14 @@ rcf
 ---
 
 Perl program which computes the third value of an electronic first-order RC filter, given 
-two of them, with an absurd precision. 
-Example with an 1 kiloohm resistor and an 1 microfarad capacitor:
+two values, with an absurd precision, and a more significant number between parentheses.
+For example, a 2.2 kiloohm resistor and a 10 nanofarad capacitor
 
-     RCF.pl 1k 1u
+     rcf 2.2k 10n
 
-returns 159.159637116027 (Hz).
+return 7234.52895981943 (7.2k) in Hertz, but the values are interchangeables, i.e. you
+can deduce a capacitor value given the resistor and the cutoff frequency.
+
 
 testmd
 ------
