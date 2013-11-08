@@ -1,0 +1,44 @@
+#!/usr/bin/perl -w
+
+# RCF.pl - jzu@free.fr 2010 - WTFPL
+# Computes the third value of a first-order RC filter, given two of them
+# Example: 0.000001 Farad (1u) and 1000 Ohm (1k) give about 159 (Hz)
+
+use strict;
+
+sub expansion($) {
+
+  my $value = shift;
+  my $unit;
+
+  ($value =~ m/[0-9]$/) and 
+    return $value;
+
+  $unit = $value;
+  $unit =~ s/.*(.)$/$1/;
+  chop $value;
+
+  ($unit eq 'M') and $value *= 1000000;
+  ($unit eq 'k') and $value *= 1000;
+  ($unit eq 'm') and $value /= 1000;
+  ($unit eq 'u') and $value /= 1000000;
+  ($unit eq 'n') and $value /= 1000000000;
+  ($unit eq 'p') and $value /= 1000000000000;
+
+  return $value;
+}
+
+
+# Main code : F=1/(2PiRC), R=1/(2PiFC), C=1/(2PiRF)
+
+if ((defined $ARGV [0]) and
+    (defined $ARGV [1]) and
+    ($ARGV [0] =~ /^(\d+\.?\d*|\.\d+)[Mkmunp]?$/) and
+    ($ARGV [1] =~ /^(\d+\.?\d*|\.\d+)[Mkmunp]?$/)) {
+
+  print 1 / (6.283 * expansion ($ARGV [0]) * expansion ($ARGV [1])) . "\n";
+  exit 0;
+}
+
+print STDERR "Usage: rcf num[Mkmunp] num[Mkmunp] \n";
+

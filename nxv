@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Networked XV - jzu 2006 - WTFPL
+# If you need xv, you need this.
+
+if [ $# -eq 0 ] 
+then
+  echo Usage: `basename $0` '[-xv_options...]' url 1>&2
+  exit 1
+fi
+
+NARG=$#
+OPTS="-nolimits "
+for i in `seq 1 $(($NARG-1))`
+do
+  OPTS="$OPTS $1"
+  shift
+done
+URL=$1
+FILE=/tmp/$$-`basename $URL`
+
+rm -f $FILE
+echo $URL \
+| grep "://" > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+  wget -O $FILE $URL > /dev/null 2>&1
+else
+  cp $URL $FILE
+fi
+WGETSTATUS=$?
+
+file $FILE \
+| grep "PNG image" &> /dev/null
+PNGSTATUS=$?
+
+if [ $PNGSTATUS -eq 0 ]
+then
+  convert $FILE /tmp/nxvtmpfile-$$.gif
+  /bin/mv -f /tmp/nxvtmpfile-$$.gif $FILE
+  xv $OPTS $FILE
+  /bin/rm $FILE
+else
+  if [ $WGETSTATUS -eq 0 ]
+  then
+    xv $OPTS $FILE
+    JPEGSTATUS=$?
+    if [ $JPEGSTATUS -eq 255 ]
+    then
+      convert $FILE /tmp/nxvtmpfile-$$
+      /bin/mv -f /tmp/nxvtmpfile-$$ $FILE
+      xv $OPTS $FILE
+    fi
+    rm -f $FILE
+  else
+    echo $URL not found 1>&2
+    rm -f $FILE
+    exit 2
+  fi
+fi

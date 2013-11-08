@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# paragrep - jzu@free.fr 2011 - WTFPL
+
+# grep patterns on paragraphs (separated by two line feeds)
+# Returns whole paragraphs w/o linefeeds
+# Accepts all grep options
+# Can read stdin
+# If fed through stdin without a pattern, formats paragraphs on a single line
+
+for i in $*
+do
+  echo $i | grep -q "^-"
+  if [ $? = 0 ]
+  then
+    OPTS="$OPTS $i"
+    shift
+  fi
+done
+
+PATTERN="$1"
+shift
+
+if [ $# -eq 0 ] 
+then
+  sed ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' | grep $OPTS "$PATTERN"
+else
+  for i in $*
+  do
+    sed ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' $i \
+    | grep $OPTS "$PATTERN" \
+    | sed "s:^:$i\: :"
+  done
+fi
+

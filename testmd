@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# testmd - jzu@free.fr 2013 - WTFPL
+# Generate HTML from a Markdown file in /tmp/testmd.html
+
+if [ $# -eq 0 ] 
+then
+  echo Usage: `basename $0` file.markdown 1>&2
+  exit 1
+fi
+
+( echo "<html><head><title>$1</title></head><body>"
+  markdown --html4tags $1
+  echo '</body></html>' ) > /tmp/testmd.html
+

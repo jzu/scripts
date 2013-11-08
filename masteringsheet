@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# masteringsheet - jzu@free.fr 2011 - WTFPL
+# All WAV files must be alphabetically ordered in the directory
+# Should be run from the directory where the WAVs reside, but
+# you can use another as long as there is no space in the path
+# Needs a titles.txt file matching filenames and titles (same order)
+# formatted as text lines with File and Title separated by a space
+# Ugly script badly coded in an inappropriate language
+# Needs sox and bc
+
+
+if [ $# -ne 2 ] 
+then
+  echo "Usage: $0 \"title\" \"engineer\""
+  exit 1
+fi
+
+# Create a list of durations for each file
+
+for i in *.wav 
+do 
+  sox $i /tmp/a.wav stat 
+done 2>&1 \
+| grep seconds \
+| sed "s/.*://" > temps
+
+# Header
+
+echo
+echo "Title     :  $1"
+echo "Engineer  :  $2"
+echo
+echo "|----|----|---|---|-------------|--------------------|-------------|"
+echo "|Trk |Ind |Cpy|Emp|  Time Code  |     Duration       |     IRSC    |"
+echo "|----|----|---|---|-------------|--------------------|-------------|"
+echo "| 01 |  0 | x |   | 00:00:00.00 | Pause:        2.00 |             |"
+
+# Song by song
+
+j=2 
+k=1
+for i in `cat temps`
+do
+  liste[$k]=`cat titles.txt \
+             | sed ${k}p\;d`
+  length[$k]=$i
+  i=`echo $i \
+     | sed "s/....$//"`
+  echo "| $k |  1 | x |   |" 00:`echo $j/60\
+                                 | bc`:`echo $j%60\
+                                        | bc` "| Track: "00:0`echo $i/60\
+                                                              | bc`:`echo $i%60\
+                                                                     | bc` "|             |" \
+  | sed -e "s/:\(.\)[:\.]/:0\1:/g" \
+        -e "s/:\./:00\./" \
+        -e "s/^| \(.\) /| 0\1 /" \
+        -e "s/:\(.\)\./:0\1\./g" \
+        -e "s/| 01 |  1 | x |   | 00:00:2 /|    |  1 |   |   | 00:00:02.00 /"
+  echo "|----|----|---|---|-------------|--------------------|-------------|"
+  k=$(($k+1))
+  j=`echo $i+$j|bc`
+done
+
+# Footer
+
+echo "| AA |  1 |   |   |" 00:`echo $j/60\
+                               | bc`:`echo $j%60\
+                                      | bc` "|    CD: "00:`echo $j/60\
+                                                           | bc`:`echo $j%60\
+                                                                  | bc` "|             |" \
+| sed -e "s/:\(.\)[:\.]/:0\1:/g" \
+      -e "s/^| \(.\) /| 0\1 /" \
+      -e "s/| 01 |  1 | x |   | 00:00:2 /|    |  1 |   |   | 00:00:02.00 /"
+echo "|----|----|---|---|-------------|--------------------|-------------|"
+echo
+
+for i in `seq 1 $(($k-1))`
+do
+  echo
+  echo $i')' ${liste[$i]} - Length: `echo ${length[$i]}/60\
+                                     | bc`mn `echo ${length[$i]}%60\
+                                              | bc \
+                                              | sed "s/\..*//"`s \
+                                              | sed -e 's/^\(.\))/0\1)/' \
+                                                    -e 's/ \(.\)s$/ 0\1s/' \
+                                                    -e "s/:\(.\)\./:0\1\./g"
+done
+
+# Cleanup
+
+/bin/rm temps
