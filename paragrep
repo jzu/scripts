@@ -4,6 +4,7 @@
 
 # grep patterns on paragraphs (separated by two line feeds)
 # Returns whole paragraphs w/o linefeeds
+# Multiple contiguous spaces reduced to a single one (useful for RFCs)
 # Accepts all grep options
 # Can read stdin
 # If fed through stdin without a pattern, formats paragraphs on a single line
@@ -23,13 +24,16 @@ shift
 
 if [ $# -eq 0 ] 
 then
-  sed ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' | grep $OPTS "$PATTERN"
+  sed -e ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' \
+      -e 's/  */ /g' \
+  | grep $OPTS "$PATTERN"
 else
   for i in $*
   do
-    sed ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' $i \
+    sed -e ':a;N;$!ba;s/\([^\n]\)\n/\1 /g' $i \
+        -e 's/  */ /g' \
     | grep $OPTS "$PATTERN" \
-    | sed "s:^:$i\: :"
+    | sed -e "s/^/$i: /"
   done
 fi
 

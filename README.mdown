@@ -52,6 +52,7 @@ paragrep
 
 `grep` for paragraphs: first, formats each paragraph (separated by two line feeds) as a single line, 
 then greps a pattern in it. Does its best to preserve patterns and options passed to the real `grep`.
+Reduces multiple contiguous spaces to a single one.
 By the way, `--color=always` is really useful to spot the pattern in huge chunks of text.
 Accepts input from stdin. Without any pattern, will simply format the paragraphs as lines.
 
