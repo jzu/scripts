@@ -52,8 +52,8 @@ paragrep
 
 `grep` for paragraphs: first, formats each paragraph (separated by two line feeds) as a single line, 
 then greps a pattern in it. Does its best to preserve patterns and options passed to the real `grep`.
-Reduces multiple contiguous spaces to a single one.
 By the way, `--color=always` is really useful to spot the pattern in huge chunks of text.
+Reduces multiple contiguous spaces to a single one.
 Accepts input from stdin. Without any pattern, will simply format the paragraphs as lines.
 
 rcf
@@ -65,7 +65,7 @@ For example, a 2.2 kiloohm resistor and a 10 nanofarad capacitor
 
      rcf 2.2k 10n
 
-return 7234.52895981943 (7.2k) in Hertz, but the values are interchangeables, i.e. you
+return `7234.52895981943 (7.2k)` in Hertz, but the values are interchangeables, i.e. you
 can deduce a capacitor value given the resistor and the cutoff frequency.
 
 
