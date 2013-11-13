@@ -51,4 +51,4 @@ convert img-$$ -resize 32x32 "$SEARCH.png"
 
 # Cleanup
 
-#/bin/rm img-$$
+/bin/rm img-$$
