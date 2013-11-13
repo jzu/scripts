@@ -29,7 +29,7 @@ echo "$SEARCH" \
 | sed -e "s/.*imgurl=//" \
       -e "s/.amp;.*//" \
       -e "s/%3F.*//" \
-| xargs wget -nv -O -U "Firefox/3.0.15" "img-$$"
+| xargs wget -nv -U "Firefox/3.0.15" -O "img-$$"
 ) &> /dev/null
 
 # Make it a JPEG
@@ -51,4 +51,4 @@ convert img-$$ -resize 32x32 "$SEARCH.png"
 
 # Cleanup
 
-/bin/rm img-$$
+#/bin/rm img-$$
