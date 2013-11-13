@@ -14,6 +14,14 @@ in ID3 fields. You get the best of both worlds: unadultered quality of FLACs plu
 portability of MP3s. The FLAC files may be generated using any ripping/encoding
 CDDB-aware software like `ripit`. You will need `flac`, `lame`, `eyeD3`.
 
+ggimg
+-----
+
+Searches Google Images using the parameter as search terms, grabs the first one 
+to appear, normalizes its size to 640 pixels wide, rename it to the search
+terms + .jpg, and creates a PNG thumbnail. Useful in addition to `ripit`, to add
+images to the files (`flac2mp3` should be upgraded...) Needs `wget` and `ImageMagick`.
+
 masteringsheet
 --------------
 

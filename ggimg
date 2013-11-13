@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# ggimg - jzu@free.fr 2013 - WTFPL
+# Searches Google Images using the parameter as search terms
+# Grabs the first one to appear
+# Normalizes its size to 640 pixels wide
+# Gives it the name of the search terms + .jpg
+# Creates a 32x32 thumbnail (e.g. to insert in FLAC files)
+# Needs wget and ImageMagick
+
+
+if [ $# -eq 0 ] 
+then
+  echo Usage: `basename $0` search terms 1>&2
+  exit 1
+fi
+
+SEARCH="$*"
+
+(
+echo "$SEARCH" \
+| sed -e 's/ /\+/g' \
+      -e 's/^/\"http:\/\/www.google.com\/search\?tbm=isch\&q=/' \
+      -e 's/$/"/' \
+| xargs wget -nv -O - -U "Firefox/3.0.15" \
+| sed 's/>/>\n/g' \
+| grep -B 1 '<img' \
+| head -1 \
+| sed -e "s/.*imgurl=//" \
+      -e "s/.amp;.*//" \
+      -e "s/%3F.*//" \
+| xargs wget -nv -O -U "Firefox/3.0.15" "img-$$"
+) &> /dev/null
+
+# Make it a JPEG
+
+convert img-$$ -resize 640 "$SEARCH.jpg" &> /dev/null
+
+# Shit happens - when download fails, img-$$ is zero-sized
+
+if [ $? -ne 0 ]
+then
+  echo Error: \"$SEARCH\" - failed to download image
+  /bin/rm -f img-$$
+  exit
+fi
+
+# And make it a thumbnail, by the way
+
+convert img-$$ -resize 32x32 "$SEARCH.png"
+
+# Cleanup
+
+/bin/rm img-$$
