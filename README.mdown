@@ -18,7 +18,7 @@ ggimg
 -----
 
 Searches Google Images using the parameter as search terms, grabs the first one 
-to appear, normalizes its size to 640 pixels wide, rename it to the search
+to appear, normalizes its size to 640 pixels wide, renames it to the search
 terms + .jpg, and creates a PNG thumbnail. Useful in addition to `ripit`, to add
 images to the files (`flac2mp3` should be upgraded...) Needs `wget` and `ImageMagick`.
 
@@ -73,7 +73,7 @@ For example, a 2.2 kiloohm resistor and a 10 nanofarad capacitor
 
      rcf 2.2k 10n
 
-return `7234.52895981943 (7.2k)` in Hertz, but the values are interchangeables, i.e. you
+return `7234.52895981943 (7.2k)` in Hertz, but the units are interchangeable, i.e. you
 can deduce a capacitor value given the resistor and the cutoff frequency.
 
 
