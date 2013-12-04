@@ -22,6 +22,17 @@ to appear, normalizes its size to 480 pixels wide, renames it to the search
 terms + .jpg, and creates a PNG thumbnail. Useful in addition to `ripit`, to add
 images to the files (`flac2mp3` should be upgraded...) Needs `wget` and `ImageMagick`.
 
+*Ouch! `ggimg` doesn't work anymore because Google's HTML has changed. See...*
+
+bsimg
+-----
+
+Searches Bing Images using the parameter as search terms, grabs the first one 
+to appear, normalizes its size to 480 pixels wide, renames it to the search
+terms + .jpg, and creates a PNG thumbnail. Useful in addition to `ripit`, to add
+images to the files (`flac2mp3` should be upgraded...) Needs `wget` and `ImageMagick`.
+Acts as a replacement for Google Images as long as their code stays undecipherable.
+
 masteringsheet
 --------------
 

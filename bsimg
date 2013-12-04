@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# bsimg - jzu@free.fr 2013 - WTFPL
+# Replaces ggimg (Google search) while its new HTML stays undecipherable
+# Searches Bing Images using the parameter as search terms
+# Grabs the first one to appear
+# Normalizes its size to 480 pixels wide
+# Gives it the name of the search terms + .jpg
+# Creates a 32x32 thumbnail (e.g. to insert in FLAC files)
+# Needs wget and ImageMagick
+
+
+if [ $# -eq 0 ] 
+then
+  echo Usage: `basename $0` search terms 1>&2
+  exit 1
+fi
+
+ARGS="$*"
+
+SEARCH==`echo "$ARGS" \
+         | sed -e 's/ /\+/g'`
+IMAGE=`wget -O - "http://www.bing.com/images/search?q=$SEARCH" 2>/dev/null \
+       | sed 's/>/>\n/g' \
+       | grep imgurl: \
+       | sed -e 's/.*imgurl:.quot;//' -e 's/.quot;.*//' \
+       | head -1`
+wget -O img-$$ "$IMAGE" 2>/dev/null
+
+# Make it a JPEG
+
+convert img-$$ -resize 480 /tmp/img/"$ARGS.jpg" &> /dev/null
+
+# Shit happens - when download fails, img-$$ is zero-sized
+
+if [ $? -ne 0 ]
+then
+  echo Error: \"$ARGS\" - failed to download image
+  /bin/rm -f img-$$
+  exit
+fi
+
+# And make it a thumbnail, by the way
+
+convert img-$$ -resize 32x32 /tmp/img/"$ARGS"
+
+# Cleanup
+
+/bin/rm img-$$
