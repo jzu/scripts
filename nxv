@@ -18,13 +18,15 @@ do
 done
 URL=$1
 FILE=/tmp/$$-`basename $URL`
+FILE=`echo $FILE \
+      | sed "s/\?.*//"`
 
 rm -f $FILE
 echo $URL \
 | grep "://" > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-  wget -O $FILE $URL > /dev/null 2>&1
+  wget --no-check-certificate -O $FILE $URL > /dev/null 2>&1
 else
   cp $URL $FILE
 fi
