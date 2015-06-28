@@ -33,6 +33,14 @@ terms + .jpg, and creates a PNG thumbnail. Useful in addition to `ripit`, to add
 images to the files (`flac2mp3` should be upgraded...) Needs `wget` and `ImageMagick`.
 Acts as a replacement for Google Images as long as their code stays undecipherable.
 
+jpg2stl
+-------
+
+Two complementary scripts which extrude an STL mesh from a JPEG image for 3D
+printing. `jpg2stl.sh` can be used as a standalone script, or you can call it
+from `jpg2stl.cgi` which allows to upload a `.jpg` image and sends back a `.stl`
+file. These scripts were written for [Datapaulette](http://datapaulette.org).
+
 masteringsheet
 --------------
 
