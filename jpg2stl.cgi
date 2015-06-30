@@ -22,9 +22,10 @@ IMAGENAME=`echo $IMAGENAME \
            | sed -e 's/.*filename="//' \
                  -e 's/".*//g' \
                  -e 's/[^a-z0-9\-\.]/_/ig' \
-           | tr A-Z a-z`
+                 -e "s/\.jpe*g//i" \
+                 -e "s/$/.jpg/"`
 STLNAME=`echo $IMAGENAME \
-         | sed "s/\.jpe*g/.stl/"`
+         | sed "s/\.jpg/.stl/"`
 
 head -n -5 > "$IMAGENAME"
 
@@ -52,8 +53,16 @@ then
 fi
 
 $CGIDIR/jpg2stl.sh ${IMAGENAME/.jpg/} 1>&2
-
-echo "IMAGENAME=$IMAGENAME STLNAME=$STLNAME" 1>&2
+if [ $? -ne 0 ]
+then
+  echo -e "Content-Type: text/html\r\n\r"
+  echo "<html><head></head>
+        <body>
+        <p>ERROR: No significant pattern detected in $IMAGENAME - increase contrast?</p>
+        <p><a href=\"$HTTP_REFERER\">Return</a></p>
+        </body></html>"
+  exit 3
+fi
 
 echo -e "Content-Type: application/force-download\r"
 echo -e "Content-Disposition: attachment; filename=\"$STLNAME\"\r\n\r"

@@ -22,8 +22,13 @@ trap "/bin/rm $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 
 
 # Make a B&W image and remove details, then trim it
 
-convert $NAME.jpg -blur 7x7 -threshold 50% $TMP.ppm
-convert $TMP.ppm -trim +repage $NAME.ppm
+convert $NAME.jpg -blur 3x3 -threshold 50% $TMP.ppm
+convert $TMP.ppm -trim +repage $NAME.ppm &> /dev/null
+if file $NAME.ppm | grep -q "1 x 1" 
+then
+  echo `basename $0` "$1: No significant pattern detected - increase contrast?" 1>&2
+  exit 1
+fi
 
 # Vectorize to EPS
 
@@ -53,7 +58,7 @@ translate ([-$X, -$Y, 0])
 
 # Convert image to extruded mesh
 
-openscad -o $TMP.stl $NAME.scad
+openscad -o $TMP.stl $NAME.scad &> /dev/null
 
 # Suppress "endsolid OpenSCAD_Model"
 
@@ -80,3 +85,4 @@ zXp73jlNpngDEPvBWLIFAAA=" \
       -e "s/Y/$Y/" \
 >> $NAME.stl
 
+exit 0
