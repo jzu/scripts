@@ -1,10 +1,12 @@
 #/bin/bash
 
-# scan2stl.sh - jzu@free.fr 2015 - WTFPL
+# jpg2stl.sh - jzu@free.fr 2015 - WTFPL
 
 # Extrudes an image so that it can be 3D-printed
 # Run as a standalone script, or from a CGI wrapper
 # Depends on ImageMagick, potrace, pstoedit, OpenSCAD
+
+# A future version should take the scanner resolution into account.
 
 if [ $# -eq 0 ] 
 then
