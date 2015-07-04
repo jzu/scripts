@@ -14,23 +14,25 @@
 #       method="post" 
 #       enctype="multipart/form-data">
 #
-# The CGI verifies this is a real JPEG of a reasonable size it has been fed,
-# and sends is to the shell script which generates an STL file for 3D 
-# purposes. In case of an error at any stage, it simply writes a message in 
+# The CGI verifies that a real JPEG of a reasonable size has been uploaded,
+# and sends it to the shell script which generates an STL file for 3D 
+# printing. In case of an error at any stage, it simply writes a message in 
 # a session-specific file and sends back a 204 No Content status code, so 
 # nothing changes on the page. Then...
 # 
-# The <script> part subscribes the page to a Server Sent Notification URL
-# which is this very CGI. At the beginning, the text/event-stream content-type
-# is detected and, if an error has been encountered, a message is displayed
-# in a window.alert() on the browser with the content of the session-specific 
-# file, and we quit. Else, if no error had happened, we simply quit. 
+# The <script> part subscribes the page to a Server-Sent Event URL which is
+# this very CGI. At the beginning, the text/event-stream content-type is
+# detected and, if an error has been encountered, a message is displayed
+# within 3 seconds in a window.alert() on the browser with the content of the 
+# the session-specific file, and we quit. Else, if no error had happened, we 
+# simply quit. 
 #
 # This appears to be the only way to stay on the same page in case of a
 # processing error, so that the form can be transparently integrated into any 
 # application: an XHR would not easily allow an unattended download, instead
 # forcing the user to click on a link (which we'd have to manage, etc.) 
 # It should work with all major browsers with a reasonable version number.
+
 
 CGIDIR=$PWD
 APPDIR=/tmp/jpg2stl
@@ -49,8 +51,14 @@ then
   then
     echo -en "data: ERROR - "
     cat $EVTFILE
-    /bin/rm $EVTFILE
     echo -en "\n\n"
+    /bin/rm $EVTFILE
+    # Clean up possible residual error files (older than 15 mn)
+    for OLDEVT in $APPDIR/*.evt 
+    do 
+      [ $[`date +%s`-`stat -c %Z $OLDEVT`] -gt 900 ] && \
+        /bin/rm $OLDEVT
+    done
   fi
   exit 0
 fi
