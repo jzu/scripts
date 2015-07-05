@@ -41,10 +41,35 @@ EVTFILE=$APPDIR/$REMOTE_HOST-$REMOTE_PORT.evt
 mkdir -p $APPDIR
 cd $APPDIR
 
+
+# Error management
+
+error () {
+  echo -en "Status: 204\r\n\r\n"
+  echo -n $* > $EVTFILE
+  rm -f "$IMAGENAME"
+  exit 1
+}
+
+
+# Session management
+
+echo $HTTP_COOKIE | grep -q jpg2stl
+if [ $? = 0 ]
+then
+  COOKIE="Cookie: "`echo $HTTP_COOKIE \
+                    | sed -e 's/.*jpg2stl=//' \
+                          -e 's/;.*//'`
+else
+  COOKIE="Set-Cookie: jpg2stl=$REMOTE_HOST-$REMOTE_PORT"
+fi
+
+
 # Notification handler
 
 if [ "$HTTP_ACCEPT" = "text/event-stream" ]
 then
+  echo -en "$COOKIE\r\n"
   echo -en 'Content-Type: text/event-stream\r\n'
   echo -en 'Cache-Control: no-cache\r\n\r\n'
   if [ -f $EVTFILE ]
@@ -62,6 +87,7 @@ then
   fi
   exit 0
 fi
+
 
 # Not an event, so this is a processing request
 
@@ -83,36 +109,24 @@ head -n -5 > "$IMAGENAME"
 
 # Preliminary checks
 
-file --mime-type "$IMAGENAME" | grep -q image/jpeg
-if [[ $? -ne 0 ]]
-then
-  echo -en "Status: 204\r\n\r\n"
-  echo -n "$IMAGENAME is not a JPEG" > $EVTFILE
-  exit 1
-fi
+file --mime-type "$IMAGENAME" | grep -q image/jpeg || \
+  error "$IMAGENAME is not a JPEG"
 
-if [ `stat -c %s "$IMAGENAME"` -gt 1000000 ]
-then 
-  echo -en "Status: 204\r\n\r\n"
-  echo -n "$IMAGENAME > 1MB" > $EVTFILE
-  exit 2
-fi
+[ `stat -c %s "$IMAGENAME"` -gt 1000000 ] && \
+  error "$IMAGENAME > 1MB" 
 
-# This is called a "business method" in books on Java. Ok, whatever.
+# Hi ho, let's go
 
 $CGIDIR/jpg2stl.sh ${IMAGENAME/.jpg/} 1>&2
 
-if [ $? -ne 0 ]
-then
-  echo -en "Status: 204\r\n\r\n"
-  echo -n "No significant pattern in $IMAGENAME - increase contrast?" > $EVTFILE
-  exit 3
-fi
+[ $? -ne 0 ] && \
+  error "No significant pattern in $IMAGENAME - increase contrast?"
 
 # All clear, send the file
 
-echo -e "Content-Type: application/force-download\r"
-echo -e "Content-Disposition: attachment; filename=\"$STLNAME\"\r\n\r"
+echo -en "$COOKIE\r\n"
+echo -en "Content-Type: application/force-download\r\n"
+echo -en "Content-Disposition: attachment; filename=\"$STLNAME\"\r\n\r\n"
 
 cat "$STLNAME"
  
