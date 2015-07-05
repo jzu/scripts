@@ -9,6 +9,10 @@
 # Creates a 32x32 thumbnail (e.g. to insert in FLAC files)
 # Needs wget and ImageMagick
 
+IMGDIR=/tmp/img
+
+mkdir -p "$IMGDIR"
+cd /tmp
 
 if [ $# -eq 0 ] 
 then
@@ -29,20 +33,20 @@ wget -O img-$$ "$IMAGE" 2>/dev/null
 
 # Make it a JPEG
 
-convert img-$$ -resize 480 /tmp/img/"$ARGS.jpg" &> /dev/null
+convert img-$$ -resize 480 "$IMGDIR/$ARGS.jpg" &> /dev/null
 
 # Shit happens - when download fails, img-$$ is zero-sized
 
 if [ $? -ne 0 ]
 then
-  echo Error: \"$ARGS\" - failed to download image
+  echo Error: \"$ARGS\" - failed to download image 1>&2
   /bin/rm -f img-$$
   exit
 fi
 
 # And make it a thumbnail, by the way
 
-convert img-$$ -resize 32x32 /tmp/img/"$ARGS"
+convert img-$$ -resize 32x32 "$IMGDIR/$ARGS".png
 
 # Cleanup
 
