@@ -31,12 +31,16 @@
 # processing error, so that the form can be transparently integrated into any 
 # application: an XHR would not easily allow an unattended download, instead
 # forcing the user to click on a link (which we'd have to manage, etc.) 
-# It should work with all major browsers with a reasonable version number.
+# It works with most major browsers with a reasonable version number - MS
+# refuses to implement SSE in IE11, though its behaviour could be emulated. 
+# See e.g. https://github.com/remy/polyfills/blob/master/EventSource.js
 
 
 CGIDIR=$PWD
 APPDIR=/tmp/jpg2stl
 EVTFILE=$APPDIR/$REMOTE_HOST-$REMOTE_PORT.evt
+[ -z $REMOTE_HOST ] && \
+  EVTFILE=$APPDIR/$REMOTE_ADDR-$REMOTE_PORT.evt
 
 mkdir -p $APPDIR
 cd $APPDIR
@@ -110,7 +114,7 @@ head -n -5 > "$IMAGENAME"
 # Preliminary checks
 
 file --mime-type "$IMAGENAME" | grep -q image/jpeg || \
-  error "$IMAGENAME is not a JPEG"
+  error "This file is not a JPEG"
 
 [ `stat -c %s "$IMAGENAME"` -gt 1000000 ] && \
   error "$IMAGENAME > 1MB" 
