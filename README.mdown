@@ -40,7 +40,6 @@ Two complementary scripts which extrude an STL mesh from a JPEG image for 3D
 printing. `jpg2stl.sh` can be used as a standalone script, or you can call it
 from `jpg2stl.cgi` which accepts a `.jpg` image and sends back a `.stl`
 file. These scripts were written for [Datapaulette](http://datapaulette.org).
-Errors are handled wia SSE, which IE11 doesn't support: go buy yourself a real browser.
 They need `ImageMagick`, `potrace`, `pstoedit` and `OpenSCAD`. You can check
 the result with `MeshLab`.
 
