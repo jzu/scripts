@@ -20,13 +20,14 @@ SCALESCAD=.82
 SCALEXY="\/7+1"
 MARGIN="*1.01+1"
 
-trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
+trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.stl" 0 1 2 3 11 15
 
 # Make a B&W image and remove details, then trim it
 
-convert $NAME.jpg -blur 3x3 -threshold 50% $TMP.ppm
-convert $TMP.ppm -trim +repage $NAME.ppm &> /dev/null
-if file $NAME.ppm | grep -q "1 x 1" 
+convert $NAME.jpg -blur 3x3 \
+                  -threshold 50% \
+                  -trim +repage $NAME.ppm &> /dev/null
+if identify $NAME.ppm | grep -q "1x1" 
 then
   echo "$1: No significant pattern detected - increase contrast?" 1>&2
   exit 1
