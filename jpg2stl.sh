@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # jpg2stl.sh - jzu@free.fr 2015 - WTFPL
 
@@ -10,27 +10,47 @@
 
 if [ $# -eq 0 ] 
 then
-  echo Usage: `basename $0` '[filename without extension]' 1>&2
+  echo Usage: `basename $0` '[filename]' 1>&2
   exit 1
 fi
 
-NAME=$1
+FILE=$1
+
+# Compatibility with the former (broken) design
+
+if [ ! -e "$FILE" ]
+then
+  FILE=`ls "$FILE".jp*g "$FILE".JP*G 2>/dev/null \
+        | head -1`
+  if [ -z "$FILE" ]
+  then
+    echo "$1 not found" 1>&2
+    exit 2
+  fi
+fi
+
+# NAME is FILE without extension, where spaces are replaced with underscores
+
+NAME=`echo "$FILE" \
+      | sed -e 's/\.jpe*g$//i' \
+            -e 's/ /_/g'`
 TMP=tmp-$NAME
 SCALESCAD=.82
 SCALEXY="\/7+1"
 MARGIN="*1.01+1"
 
-trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.stl" 0 1 2 3 11 15
+#trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
+trap "/bin/rm -f $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
 
 # Make a B&W image and remove details, then trim it
 
-convert $NAME.jpg -blur 3x3 \
-                  -threshold 50% \
-                  -trim +repage $NAME.ppm &> /dev/null
+convert "$FILE" -blur 3x3 \
+                -threshold 50% \
+                -trim +repage $NAME.ppm &> /dev/null
 if identify $NAME.ppm | grep -q "1x1" 
 then
   echo "$1: No significant pattern detected - increase contrast?" 1>&2
-  exit 1
+  exit 3
 fi
 
 # Vectorize to EPS
