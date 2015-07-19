@@ -39,8 +39,7 @@ SCALESCAD=.82
 SCALEXY="\/7+1"
 MARGIN="*1.01+1"
 
-#trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
-trap "/bin/rm -f $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
+trap "/bin/rm -f $NAME.ppm $NAME.eps $NAME.dxf $NAME.scad $TMP.ppm $TMP.stl" 0 1 2 3 11 15
 
 # Make a B&W image and remove details, then trim it
 
