@@ -80,6 +80,8 @@ read SOURCEFILE
 read
 read
 
+# IMAGENAME is a sanitized SOURCEFILE
+
 SOURCEFILE=`echo $SOURCEFILE \
             | sed -e 's/.*filename="//' \
                   -e 's/".*//g'` 
@@ -96,18 +98,18 @@ head -n -1 > "$IMAGENAME"
 
 # Preliminary checks
 
-[ -z $SOURCEFILE ] &&
+[ -z "$SOURCEFILE" ] &&
   iframe "No file given"
 
-file --mime-type "$IMAGENAME" | grep -q image/jpeg || \
+file --mime-type $IMAGENAME | grep -q image/jpeg || \
   iframe "$SOURCEFILE is not a JPEG"
 
-[ `stat -c %s "$IMAGENAME"` -gt 1000000 ] && \
+[ `stat -c %s $IMAGENAME` -gt 1000000 ] && \
   iframe "$SOURCEFILE > 1MB" 
 
 # Hi ho, let's go
 
-$CGIDIR/jpg2stl.sh ${IMAGENAME/.jpg/} 1>&2
+$CGIDIR/jpg2stl.sh $IMAGENAME 1>&2
 
 # Easy ride?
 
@@ -119,6 +121,6 @@ $CGIDIR/jpg2stl.sh ${IMAGENAME/.jpg/} 1>&2
 echo -en "Content-Type: application/force-download\r\n"
 echo -en "Content-Disposition: attachment; filename=\"$STLNAME\"\r\n\r\n"
 
-cat "$STLNAME"
+cat $STLNAME
  
 
