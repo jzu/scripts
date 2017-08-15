@@ -65,11 +65,6 @@ first popular sampler, and used 8-bit samples on 3.5" diskettes,
 which were formatted in an "interesting" way. 
 Normal humans won't need this script.
 
-new\_mew\_strings
-----------------
-Finds missing strings in [translation files](https://github.com/kvhnuke/etherwallet/tree/mercury/app/scripts/translations) 
-for [MyEtherWallet](https://www.myetherwallet.com/).
-
 nxv
 ---
 
