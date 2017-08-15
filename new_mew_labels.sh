@@ -46,14 +46,14 @@ fi
 # Find all translation keys in en.js
 
 grep ' :  *' $DIR/en.js \
-| sed 's/ *:.*//' \
+| sed 's/[[:space:]]*:.*//' \
 | sort \
 > /tmp/mew.en.$$
 
 # Find all translation keys in $TARGET.js
 
 grep ' :  *' $DIR/$TARGET.js \
-| sed 's/ *:.*//' \
+| sed 's/[[:space:]]*:.*//' \
 | sort \
 > /tmp/mew.$TARGET.$$
 
@@ -67,6 +67,9 @@ diff /tmp/mew.en.$$ /tmp/mew.$TARGET.$$ \
       -e 's/^/"egrep_kludge|/' \
       -e 's/$/|egrep_kludge"/' \
 > /tmp/mew.labels.$$
+
+grep -q 'kludge||egrep' /tmp/mew.labels.$$ && \
+  exit 9
 
 # Display key:value pairs in en.js with context
 
